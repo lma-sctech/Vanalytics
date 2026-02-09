@@ -1,0 +1,677 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rapport de mission | Vanalytics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0f1419;
+      --bg-card: #1a1f2e;
+      --bg-card-hover: #252b3d;
+      --border: #2d3748;
+      --text: #e2e8f0;
+      --text-muted: #718096;
+      --primary: #00d4ff;
+      --secondary: #00ff88;
+      --warning: #ffd93d;
+      --danger: #ff6b6b;
+      --purple: #a78bfa;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body[data-theme="light"] {
+      --bg-dark: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #edf2f7;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --text-muted: #4a5568;
+      --primary: #0ea5e9;
+      --secondary: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .top-link {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .top-link:hover {
+      border-color: var(--primary);
+      background: var(--bg-card-hover);
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .scroll-top {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 50;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .scroll-top.show { display: inline-flex; }
+
+    header {
+      padding: 32px 6vw 24px;
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      max-width: 880px;
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: #000;
+      border-color: transparent;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--primary);
+      background: var(--bg-card-hover);
+    }
+
+    main {
+      padding: 24px 6vw 64px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: grid;
+      gap: 8px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .kpi-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .kpi-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .section h3 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section h3::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: linear-gradient(180deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    .article {
+      display: grid;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12rem;
+    }
+
+    .article-title {
+      font-size: clamp(2rem, 3.6vw, 2.8rem);
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .divider {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      letter-spacing: 0.06rem;
+    }
+
+    .lead {
+      display: grid;
+      gap: 12px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .bullet {
+      padding-left: 6px;
+      line-height: 1.6;
+    }
+
+    .accordion {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .accordion summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--bg-card);
+    }
+
+    .accordion summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .accordion-body {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 10px;
+      line-height: 1.6;
+      color: var(--text);
+      border-top: 1px solid var(--border);
+      background: var(--bg-card-hover);
+    }
+
+    .ghost-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .step span {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .gantt {
+      margin-top: 8px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .gantt-header {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .gantt-grid {
+      display: grid;
+      grid-template-columns: 240px repeat(7, 1fr);
+      gap: 8px;
+      align-items: center;
+      min-width: 720px;
+    }
+
+    .gantt-scroll {
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .gantt-cell {
+      font-size: 0.85rem;
+      color: var(--text);
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: var(--bg-card-hover);
+    }
+
+    .gantt-week {
+      text-align: center;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+
+    .gantt-label {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .gantt-bar {
+      grid-column: 2 / span 2;
+      padding: 8px 10px;
+      border-radius: 999px;
+      color: #000;
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .bar-primary { background: var(--primary); }
+    .bar-secondary { background: var(--secondary); }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .muted { color: var(--text-muted); }
+
+    footer {
+      padding: 24px 6vw 48px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      header, main, footer { padding: 0; }
+      .topbar, .btn, #logout, #print, #theme-toggle { display: none !important; }
+      .section, .kpi-card { border: 1px solid #ccc; box-shadow: none; }
+      .title { -webkit-text-fill-color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand">Vanalytics</div>
+      <div class="top-links">
+        <a class="top-link" href="home.html">Rapport mission Vanady</a>
+        <a class="top-link" href="dashboard.html">Dashboard Vanady</a>
+        <a class="top-link" href="missions.html">Etudes et livrables</a>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="theme-toggle" id="topbar-logout" style="display: none;">Se déconnecter</button>
+      <button class="theme-toggle" id="theme-toggle">Mode clair</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="title">Mission Performances des Expéditions Vanady</div>
+    <p class="subtitle">Synthèse structurée des constats, analyses et livrables remis à ChabiChic dans le cadre de la mission Vanady.</p>
+
+  </header>
+
+      <main>
+    <article class="article">
+      <div class="eyebrow">Rapport final de mission</div>
+      <h1 class="article-title">Optimisation de la performance des expéditions internationales</h1>
+      
+
+      <div class="lead">
+
+      </div>
+
+      
+      <details class="accordion" open>
+        <summary>
+          <span>La présente mission avait pour objectif de conduire une revue urgente et approfondie de la performance des expéditions internationales, d’identifier les sources de surcoûts logistiques et de définir un plan d’actions opérationnel permettant de réduire durablement les coûts et les dysfonctionnements constatés.</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>Sur la base de l’analyse des flux des 12 derniers mois, des données issues des systèmes (ShippingBo, Shopify), des contrats et factures transporteurs (La Poste / Colissimo), ainsi que des pratiques opérationnelles terrain, la mission a permis :</p>
+<p>•	d’identifier des écarts significatifs et de mettre en évidence des causes structurelles (qualité des données, paramétrages outils, process opérationnels),</p>
+<p>•	de déployer des quick wins dès les premières semaines,</p>
+<p>•	et de sécuriser les opérations dans un contexte de tension forte sur les stocks et l’inventaire.</p>
+<p>Au-delà du périmètre initial, la mission a intégré une gestion liée à l’inventaire et à la fiabilité des stocks, indispensable pour garantir la pertinence des analyses et la continuité des expéditions.</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Contexte et enjeux</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>L’activité d’expédition de l’entrepôt Vanady représente un enjeu stratégique majeur, tant en termes de satisfaction client que de maîtrise des coûts. Les constats initiaux faisaient état de :</p>
+<p>•	surcoûts transport récurrents,</p>
+<p>•	écarts potentiel de facturation,</p>
+<p>•	sur-tarifications liées aux poids, dimensions ou services additionnels,</p>
+<p>•	manque de visibilité consolidée sur la performance expéditions.</p>
+<p>Dans ce contexte, une mission courte, orientée résultats et actions rapides, a été engagée afin d’apporter une lecture factuelle de la situation et de proposer des leviers d’amélioration immédiatement activables.</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Objectifs de la mission</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>Les objectifs validés en phase de cadrage étaient les suivants :</p>
+<p>•	analyser la performance des expéditions Vanady sur les 12 derniers mois,</p>
+<p>•	identifier les sources de surcoûts et de non-qualité,</p>
+<p>•	auditer les flux de données entre les différents systèmes,</p>
+<p>•	proposer un plan d’actions opérationnel et priorisé,</p>
+<p>•	déployer des quick wins dès la troisième semaine de mission,</p>
+<p>•	accompagner les équipes dans la mise en œuvre des premières actions.</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Périmètre d’intervention</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>•	Analyse des données sur une période de 12 mois selon disponibilité et fiabilité des sources</p>
+<p>•	Expéditions internationales B2C</p>
+<p>•	Transporteurs : La Poste / Colissimo</p>
+<p>•	Outils : ShippingBo, Shopify, Terraflow</p>
+<p>•	Consommables et emballages</p>
+<p>•	Process de préparation, d’expédition, réception, inventaire</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Méthodologie d’intervention</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>La mission a été conduite selon une approche structurée en cinq étapes :</p>
+<p>1.	Collecte et fiabilisation des données</p>
+<p>Réception, contrôle et réconciliation des exports systèmes et des factures transporteurs.</p>
+<p>2.	Analyse quantitative et qualitative</p>
+<p>Analyse des flux, des coûts, des écarts et des causes racines.</p>
+<p>3.	Analyse opérationnelle terrain</p>
+<p>Échanges avec les équipes, revue des pratiques d’emballage, différents tests de scénarios d’expédition.</p>
+<p>4.	Identification et déploiement des quick wins</p>
+<p>Actions correctives rapides mises en œuvre en cours de mission.</p>
+<p>5.	Construction du plan d’actions et restitution</p>
+<p>Formalisation des recommandations, priorisation et accompagnement à la décision.</p>
+<p>Un dispositif de suivi hebdomadaire a été mis en place en début de mission, en fonction des disponibilités respectives. Ce rythme a ensuite été temporairement suspendu au début de l’année 2026, en raison de contraintes organisationnelles internes à Chabi Chic.</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Analyses réalisées</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>1 Analyse des données d’expédition</p>
+<p>•	Analyse des volumes expédiés par zone géographique</p>
+<p>•	Analyse des coûts moyens par commande</p>
+<p>•	Identification des écarts entre poids déclarés et poids facturés</p>
+<p>•	Analyse des surcharges transporteurs</p>
+<p>2 Analyse des contrats et factures transport</p>
+<p>•	Revue des grilles tarifaires et conditions contractuelles</p>
+<p>•	Contrôle de la conformité des factures</p>
+<p>•	Identification des sur-facturations et anomalies récurrentes</p>
+<p>3 Analyse des consommables et emballages(Chabichic hors mission Vanady)</p>
+<p>•	Coûts unitaires des emballages</p>
+<p>•	Impact du choix d’emballage sur les coûts </p>
+<p>•	Opportunités de standardisation</p>
+<p>4 Analyse des outils et flux systèmes</p>
+<p>•	Qualité des données produits (poids, dimensions, EAN)</p>
+<p>•	Paramétrage ShippingBo supplementaire</p>
+<p>•	Interfaces Shopify / Terraflow</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Gestion de la situation critique – Inventaire</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>En cours de mission, une situation critique liée à l’inventaire et à la fiabilité des stocks a été identifiée, impactant directement les expéditions et la qualité des analyses.</p>
+<p>Actions menées :</p>
+<p>•	coordination et pilotage de l’inventaire,</p>
+<p>•	analyse des écarts de stock,</p>
+<p>•	traitement des commandes bloquées,</p>
+<p>•	coordination des équipes France / Maroc,</p>
+<p>•	échanges avec le support ShippingBo.</p>
+<p>Cette intervention, bien que non explicitement prévue lors du cadrage initial, s’est inscrite dans une logique d’optimisation globale, permettant à la fois de sécuriser la continuité opérationnelle et de tirer parti de l’inventaire de fin d’année pour fiabiliser durablement les données et les résultats de la mission.</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Quick wins déployés</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>•	Ajustement de certains paramétrages ShippingBo</p>
+<p>•	Corrections ciblées des données produits critiques</p>
+<p>•	Amélioration de la lisibilité des indicateurs de suivi</p>
+<p>•	Formations à l’outil d’impression d’étiquettes</p>
+<p>•	Formation à la réception, préparation et inventaire au PDA</p>
+<p>•	Utilisation du PDA avec la solution ShippingBo</p>
+<p>•	Impression des étiquettes articles au standard 128</p>
+        </div>
+      </details>
+
+      
+      <details class="accordion">
+        <summary>
+          <span>Conclusion</span>
+          
+        </summary>
+        <div class="accordion-body">
+<p>La mission a permis de répondre pleinement aux objectifs fixés lors du cadrage initial, tout en sécurisant les opérations dans un contexte complexe et contraint.</p>
+<p>Les livrables remis constituent une base solide pour :</p>
+<p>•	réduire durablement les surcoûts,</p>
+<p>•	améliorer la fiabilité des expéditions,</p>
+<p>•	renforcer le pilotage de la performance logistique.</p>
+<p>La mise en œuvre progressive du <a href="plan-action-2026.html" style="color:inherit; text-decoration:underline;">plan d’actions recommandé</a> permettra de générer des gains mesurables à court et moyen terme.</p>
+        </div>
+      </details>
+
+      
+    </article>
+  </main>
+
+
+  <button class="scroll-top" id="scroll-top">Haut</button>
+
+  <footer>
+    Rapport de synthèse –Mission Performances des Expéditions Vanady.
+  </footer>
+
+  <script>
+    if (localStorage.getItem('vanady_auth') !== 'ok') {
+      window.location.href = 'login.html';
+    }
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const topbarLogout = document.getElementById('topbar-logout');
+    const savedTheme = localStorage.getItem('vanalytics_theme');
+    if (savedTheme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      themeToggle.textContent = 'Mode sombre';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('vanalytics_theme', 'dark');
+        themeToggle.textContent = 'Mode clair';
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+        localStorage.setItem('vanalytics_theme', 'light');
+        themeToggle.textContent = 'Mode sombre';
+      }
+    });
+
+    // Topbar logout (visible si connecté)
+    if (localStorage.getItem('vanady_auth') === 'ok') {
+      topbarLogout.style.display = 'inline-flex';
+    }
+    topbarLogout.addEventListener('click', () => {
+      localStorage.removeItem('vanady_auth');
+      window.location.href = 'login.html';
+    });
+
+    const scrollTopBtn = document.getElementById('scroll-top');
+    const toggleScrollBtn = () => {
+      scrollTopBtn.classList.toggle('show', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', toggleScrollBtn);
+    toggleScrollBtn();
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  </script>
+</body>
+</html>

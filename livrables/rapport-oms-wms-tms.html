@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rapport OMS / WMS / TMS | Vanalytics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0f1419;
+      --bg-card: #1a1f2e;
+      --bg-card-hover: #252b3d;
+      --border: #2d3748;
+      --text: #e2e8f0;
+      --text-muted: #718096;
+      --primary: #00d4ff;
+      --secondary: #00ff88;
+      --warning: #ffd93d;
+      --danger: #ff6b6b;
+      --purple: #a78bfa;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body[data-theme="light"] {
+      --bg-dark: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #edf2f7;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --text-muted: #4a5568;
+      --primary: #0ea5e9;
+      --secondary: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .top-link {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .top-link:hover {
+      border-color: var(--primary);
+      background: var(--bg-card-hover);
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    header {
+      padding: 28px 6vw 22px;
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+      font-weight: 700;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      max-width: 900px;
+      line-height: 1.6;
+    }
+
+    .meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    main {
+      padding: 22px 6vw 64px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .kpi-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .kpi-label {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .section h3 {
+      font-size: 1.05rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section h3::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: linear-gradient(180deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      line-height: 1.6;
+    }
+
+    .callout {
+      border: 1px solid var(--warning);
+      background: rgba(255, 217, 61, 0.12);
+      color: var(--text);
+      padding: 14px;
+      border-radius: 12px;
+    }
+
+    .callout.danger {
+      border-color: var(--danger);
+      background: rgba(255, 107, 107, 0.12);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      color: var(--primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-size: 0.75rem;
+    }
+
+    .scroll-top {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 50;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .scroll-top.show { display: inline-flex; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand">Vanalytics</div>
+      <div class="top-links">
+        <a class="top-link" href="../home.html">Rapport mission Vanady</a>
+        <a class="top-link" href="../dashboard.html">Dashboard Vanady</a>
+        <a class="top-link" href="../missions.html">Etudes et livrables</a>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="theme-toggle" id="topbar-logout" style="display: none;">Se déconnecter</button>
+      <button class="theme-toggle" id="theme-toggle">Mode clair</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="title">Rapport d’analyse OMS / WMS / TMS</div>
+    <p class="subtitle">Analyse des flux et de la performance opérationnelle sur 62 jours. Synthèse des volumes, densité, répartition horaire et performance transport.</p>
+    <div class="meta">
+      <div>Rapport du : 15/11/2025</div>
+      <div>Période : 12/09/2025 → 12/11/2025</div>
+      <div>152 commandes · 163 expéditions</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="kpi-card">
+        <div class="kpi-value">152</div>
+        <div class="kpi-label">Total commandes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">76.97%</div>
+        <div class="kpi-label">Commandes multi-produits</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">5.53</div>
+        <div class="kpi-label">Articles / commande</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">2.45</div>
+        <div class="kpi-label">Commandes / jour</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">841</div>
+        <div class="kpi-label">Articles expédiés</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">Dimanche</div>
+        <div class="kpi-label">Jour le plus actif</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Répartition horaire</h3>
+      <div class="list">
+        <div>Heure de pic : 10h (8.55% du volume, 13 commandes).</div>
+        <div>Heures fortes : 14h (7.89%), 11h (7.24%), 13h (7.24%).</div>
+        <div>Heures actives : 15h, 17h, 19h, 22h (6.58% chacune).</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Weekday vs weekend</h3>
+      <div class="grid">
+        <div class="kpi-card">
+          <div class="kpi-value">94</div>
+          <div class="kpi-label">Commandes Weekdays (61.84%)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">58</div>
+          <div class="kpi-label">Commandes Weekend (38.16%)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Statistiques de densité & volumes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Métrique</th>
+            <th>Valeur</th>
+            <th>Interprétation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Articles totaux expédiés</td>
+            <td>841</td>
+            <td>Volume global traité sur la période</td>
+          </tr>
+          <tr>
+            <td>Moyenne articles/commande</td>
+            <td>5.53</td>
+            <td>Densité très élevée, rentabilité logistique optimale</td>
+          </tr>
+          <tr>
+            <td>Médiane articles/commande</td>
+            <td>3.0</td>
+            <td>Distribution asymétrique vers le haut</td>
+          </tr>
+          <tr>
+            <td>Commandes volumineuses (&gt;5 items)</td>
+            <td>64 (42.11%)</td>
+            <td>Part significative de commandes complexes</td>
+          </tr>
+          <tr>
+            <td>Commande la plus dense</td>
+            <td>51 articles</td>
+            <td>Capacité de traitement de gros volumes confirmée</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h3>Audit des retours</h3>
+      <div class="callout danger">Volume de données insuffisant : 0 retours enregistrés sur 530 commandes attendues. Analyses non fiables tant que les retours ne sont pas saisis.</div>
+    </section>
+
+    <section class="section">
+      <h3>Performance transport</h3>
+      <div class="grid">
+        <div class="kpi-card">
+          <div class="kpi-value">163</div>
+          <div class="kpi-label">Expéditions analysées</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">1</div>
+          <div class="kpi-label">Transporteur actif</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">2 230 g</div>
+          <div class="kpi-label">Poids moyen / expédition</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">1.0</div>
+          <div class="kpi-label">Colis / commande</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">73 / 100</div>
+          <div class="kpi-label">Score efficacité transport</div>
+        </div>
+      </div>
+      <div class="callout">Alerte : mono-transporteur (La Poste, 100% du volume). Risque opérationnel élevé et dépendance maximale.</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Transporteur</th>
+            <th>Expéditions</th>
+            <th>% Volume</th>
+            <th>Poids moyen</th>
+            <th>Colis/Cmd</th>
+            <th>Performance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>La Poste</td>
+            <td>163</td>
+            <td>100.0%</td>
+            <td>2 230 g</td>
+            <td>1.0</td>
+            <td>Exclusif sur la période</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h3>Analyse stock – classes Pareto</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Produits</th>
+            <th>Stock total</th>
+            <th>Stock moyen</th>
+            <th>Performance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A (Stars)</td>
+            <td>152</td>
+            <td>987 unités</td>
+            <td>6.5 / produit</td>
+            <td>Excellence</td>
+          </tr>
+          <tr>
+            <td>B (Potentiel)</td>
+            <td>131</td>
+            <td>1456 unités</td>
+            <td>11.1 / produit</td>
+            <td>Bon</td>
+          </tr>
+          <tr>
+            <td>C (Niche)</td>
+            <td>54</td>
+            <td>658 unités</td>
+            <td>12.2 / produit</td>
+            <td>Modéré</td>
+          </tr>
+          <tr>
+            <td>D (Dormant)</td>
+            <td>529</td>
+            <td>1876 unités</td>
+            <td>3.5 / produit</td>
+            <td>À réactiver</td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td>866</td>
+            <td>4977 unités</td>
+            <td>5.7</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h3>Qualité des données catalogue</h3>
+      <div class="grid">
+        <div class="kpi-card">
+          <div class="kpi-value">73.5%</div>
+          <div class="kpi-label">Références avec EAN13</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">54.8%</div>
+          <div class="kpi-label">Références avec stock</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">26.5%</div>
+          <div class="kpi-label">Références sans EAN13</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">45.2%</div>
+          <div class="kpi-label">Références sans stock</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Performance par classe</h3>
+      <div class="grid">
+        <div class="kpi-card">
+          <div class="kpi-value">92</div>
+          <div class="kpi-label">Fast-Movers (&gt;12x/an)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">761</div>
+          <div class="kpi-label">Produits actifs (3-12x/an)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">561</div>
+          <div class="kpi-label">Slow-Movers (&lt;3x/an)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>Stock actif vs dormant</h3>
+      <div class="grid">
+        <div class="kpi-card">
+          <div class="kpi-value">62.6%</div>
+          <div class="kpi-label">Stock actif (885 réf.)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">37.4%</div>
+          <div class="kpi-label">Stock dormant (529 réf.)</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="scroll-top" id="scroll-top">Haut</button>
+
+  <script>
+    if (localStorage.getItem('vanady_auth') !== 'ok') {
+      window.location.href = '../login.html';
+    }
+
+    const themeToggle = document.getElementById('theme-toggle');
+    const topbarLogout = document.getElementById('topbar-logout');
+    const savedTheme = localStorage.getItem('vanalytics_theme');
+    if (savedTheme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      themeToggle.textContent = 'Mode sombre';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('vanalytics_theme', 'dark');
+        themeToggle.textContent = 'Mode clair';
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+        localStorage.setItem('vanalytics_theme', 'light');
+        themeToggle.textContent = 'Mode sombre';
+      }
+    });
+
+    if (localStorage.getItem('vanady_auth') === 'ok') {
+      topbarLogout.style.display = 'inline-flex';
+    }
+    topbarLogout.addEventListener('click', () => {
+      localStorage.removeItem('vanady_auth');
+      window.location.href = '../login.html';
+    });
+
+    const scrollTopBtn = document.getElementById('scroll-top');
+    const toggleScrollBtn = () => {
+      scrollTopBtn.classList.toggle('show', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', toggleScrollBtn);
+    toggleScrollBtn();
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  </script>
+</body>
+</html>

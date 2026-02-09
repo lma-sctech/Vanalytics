@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard LMA - Analyse Vanady</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0f1419;
+            --bg-card: #1a1f2e;
+            --bg-card-hover: #252b3d;
+            --border: #2d3748;
+            --text: #e2e8f0;
+            --text-muted: #718096;
+            --primary: #00d4ff;
+            --secondary: #00ff88;
+            --warning: #ffd93d;
+            --danger: #ff6b6b;
+            --purple: #a78bfa;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        body[data-theme="light"] {
+            --bg-dark: #f7fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #edf2f7;
+            --border: #e2e8f0;
+            --text: #1a202c;
+            --text-muted: #4a5568;
+            --primary: #0ea5e9;
+            --secondary: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 1.05rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .top-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .top-link {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .top-link:hover {
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .scroll-top {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: none;
+            z-index: 50;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .scroll-top.show { display: inline-flex; }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .periode {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            background: var(--bg-card);
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .nav-tab {
+            padding: 10px 25px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover { background: var(--bg-card-hover); color: var(--text); }
+        .nav-tab.active { background: var(--primary); color: #000; font-weight: 600; }
+
+        /* Container */
+        .container { padding: 25px; max-width: 1800px; margin: 0 auto; }
+
+        /* KPIs */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .kpi-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .kpi-card .value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .kpi-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px; }
+        .kpi-card.green .value { color: var(--secondary); }
+        .kpi-card.warning .value { color: var(--warning); }
+        .kpi-card.danger .value { color: var(--danger); }
+
+        /* Sections */
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .section-header::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .section-body { padding: 20px; }
+
+        /* Tables */
+        .table-wrapper { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        th {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+
+        th:hover { background: rgba(0, 212, 255, 0.2); }
+
+        tr:hover { background: var(--bg-card-hover); }
+
+        td { color: var(--text); }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary { background: rgba(0, 212, 255, 0.2); color: var(--primary); }
+        .badge-success { background: rgba(0, 255, 136, 0.2); color: var(--secondary); }
+        .badge-warning { background: rgba(255, 217, 61, 0.2); color: var(--warning); }
+        .badge-danger { background: rgba(255, 107, 107, 0.2); color: var(--danger); }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+
+        .chart-container { height: 300px; position: relative; }
+
+        /* Volet caché */
+        .volet { display: none; }
+        .volet.active { display: block; }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .progress-bar .fill.primary { background: var(--primary); }
+        .progress-bar .fill.secondary { background: var(--secondary); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .kpi-card .value { font-size: 1.4rem; }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+        }
+
+        .error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid var(--danger);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: var(--danger);
+        }
+
+        /* Validation */
+        .validation-ok { color: var(--secondary); }
+        .validation-warn { color: var(--warning); }
+        .validation-err { color: var(--danger); }
+
+ 
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="brand">Vanalytics</div>
+            <div class="top-links">
+                <a class="top-link" href="home.html">Rapport mission Vanady</a>
+                <a class="top-link" href="dashboard.html">Dashboard Vanady</a>
+                <a class="top-link" href="missions.html">Etudes et livrables</a>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <button class="theme-toggle" id="topbar-logout" style="display: none;">Se déconnecter</button>
+            <button class="theme-toggle" id="theme-toggle">Mode clair</button>
+        </div>
+    </div>
+    <header class="header">
+        <div>
+            <h1>Dashboard LMA - Analyse Vanady</h1>
+            <p class="periode" id="periode">Chargement...</p>
+        </div>
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-volet="commandes">Commandes</button>
+            <button class="nav-tab" data-volet="transport">Transport</button>
+            <button class="nav-tab" data-volet="articles">Articles</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- VOLET COMMANDES -->
+        <div id="volet-commandes" class="volet active">
+            <div class="kpi-grid" id="kpis-commandes"></div>
+
+            <section class="section">
+                <div class="section-header"><h2>Detail Mensuel - Commandes</h2></div>
+                <div class="section-body">
+                    <div class="table-wrapper">
+                        <table id="table-mensuel">
+                            <thead>
+                                <tr>
+                                    <th>Periode</th>
+                                    <th class="text-right">Commandes</th>
+                                    <th class="text-right">CA (EUR)</th>
+                                    <th class="text-center">Mono %</th>
+                                    <th class="text-center">Multi %</th>
+                                    <th class="text-right">Moy/Jour</th>
+                                    <th class="text-center">Densite</th>
+                                    <th class="text-right">References</th>
+                                    <th>Jour Max</th>
+                                    <th>Heure Pic</th>
+                                    <th class="text-center">Annule %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-mensuel"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <section class="section">
+                <div class="section-header"><h2>Etats par Mois</h2></div>
+                <div class="section-body">
+                    <div class="table-wrapper">
+                        <table id="table-etats-mensuel">
+                            <thead>
+                                <tr>
+                                    <th>Periode</th>
+                                    <th class="text-right">Closed</th>
+                                    <th class="text-right">Shipped</th>
+                                    <th class="text-right">Canceled</th>
+                                    <th class="text-right">Rejected</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-etats-mensuel"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div class="charts-grid">
+                <section class="section">
+                    <div class="section-header"><h2>Evolution Mensuelle</h2></div>
+                    <div class="section-body">
+                        <div class="chart-container"><canvas id="chart-evolution"></canvas></div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-header"><h2>Repartition Mono / Multi</h2></div>
+                    <div class="section-body">
+                        <div class="chart-container"><canvas id="chart-mono-multi"></canvas></div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-header"><h2>Activite par Heure</h2></div>
+                    <div class="section-body">
+                        <div class="chart-container"><canvas id="chart-horaire"></canvas></div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-header"><h2>Activite par Jour</h2></div>
+                    <div class="section-body">
+                        <div class="chart-container"><canvas id="chart-jours"></canvas></div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="section">
+                <div class="section-header"><h2>Repartition des Etats</h2></div>
+                <div class="section-body">
+                    <div id="etats-bars"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- VOLET TRANSPORT -->
+        <div id="volet-transport" class="volet">
+            <div class="kpi-grid" id="kpis-transport"></div>
+
+            <section class="section">
+                <div class="section-header"><h2>Expeditions Mensuelles</h2></div>
+                <div class="section-body">
+                    <div class="table-wrapper">
+                        <table id="table-expeditions">
+                            <thead>
+                                <tr>
+                                    <th>Periode</th>
+                                    <th class="text-right">Expeditions</th>
+                                    <th class="text-right">CA (EUR)</th>
+                                    <th class="text-right">Poids Total (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-expeditions"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div class="charts-grid">
+                <section class="section">
+                    <div class="section-header"><h2>Tranches de Poids</h2></div>
+                    <div class="section-body">
+                        <div class="chart-container"><canvas id="chart-poids"></canvas></div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-header"><h2>Evolution Expeditions</h2></div>
+                    <div class="section-body">
+                        <div class="chart-container"><canvas id="chart-expeditions"></canvas></div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="section">
+                <div class="section-header"><h2>Top Pays</h2></div>
+                <div class="section-body">
+                    <div class="chart-container" style="height: 280px;"><canvas id="chart-pays"></canvas></div>
+                    <div class="table-wrapper" style="max-height: 400px; overflow-y: auto; margin-top: 15px;">
+                        <table id="table-pays">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Pays</th>
+                                    <th class="text-right">Commandes</th>
+                                    <th class="text-right">CA (EUR)</th>
+                                    <th class="text-right">CA/Cmd</th>
+                                    <th class="text-right">Poids (kg)</th>
+                                    <th class="text-right">% CA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pays"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+<section class="section">
+                <div class="section-header"><h2>Top Codes Postaux</h2></div>
+                <div class="section-body">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                        <select id="cp-metric" class="nav-tab" style="padding:8px 12px;">
+                            <option value="volume">Classement: Volume</option>
+                            <option value="ca">Classement: CA</option>
+                            <option value="poids">Classement: Poids</option>
+                        </select>
+                        <select id="cp-limit" class="nav-tab" style="padding:8px 12px;">
+                            <option value="10">Top 10</option>
+                            <option value="20">Top 20</option>
+                            <option value="50" selected>Top 50</option>
+                        </select>
+                        <select id="cp-country" class="nav-tab" style="padding:8px 12px;">
+                            <option value="ALL">Tous pays</option>
+                        </select>
+                    </div>
+                    <div id="cp-stats" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;"></div>
+                    <div class="chart-container" style="height: 360px;"><canvas id="chart-cp"></canvas></div>
+                    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto; margin-top: 15px;">
+                        <table id="table-cp">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Code Postal</th>
+                                    <th>Ville</th>
+                                    <th>Pays</th>
+                                    <th class="text-right">Commandes</th>
+                                    <th class="text-right">CA (EUR)</th>
+                                    <th class="text-right">CA/Cmd</th>
+                                    <th class="text-right">Poids (kg)</th>
+                                    <th class="text-right">% CA</th>
+                                    <th class="text-center">Poids Eleve</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-cp"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+
+        <!-- VOLET ARTICLES -->
+        <div id="volet-articles" class="volet">
+            <div class="kpi-grid" id="kpis-articles"></div>
+
+            <section class="section">
+                <div class="section-header"><h2>Sources Prix Articles</h2></div>
+                <div class="section-body">
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">
+                        CA = Prix B2C EUR (Product_vanady.xlsx). Cout = Achat MAD HT converti en EUR (taux 10,94).
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header"><h2>Pareto CA B2C - Top 50</h2></div>
+                <div class="section-body">
+                    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                        <table id="table-pareto-ca">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Article</th>
+                                    <th class="text-right">CA (EUR)</th>
+                                    <th class="text-right">% CA</th>
+                                    <th class="text-right">Cumul %</th>
+                                    <th class="text-right">Quantite</th>
+                                    <th class="text-right">Commandes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pareto-ca"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header"><h2>Pareto Marge - Top 50</h2></div>
+                <div class="section-body">
+                    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                        <table id="table-pareto-marge">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Article</th>
+                                    <th class="text-right">Marge (EUR)</th>
+                                    <th class="text-right">% Marge</th>
+                                    <th class="text-right">Cumul %</th>
+                                    <th class="text-right">Quantite</th>
+                                    <th class="text-right">Commandes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pareto-marge"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header"><h2>Anomalies Prix / Cout - Top 50</h2></div>
+                <div class="section-body">
+                    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+                        <table id="table-articles-anomalies">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Article</th>
+                                    <th class="text-right">Quantite</th>
+                                    <th class="text-right">CA (EUR)</th>
+                                    <th class="text-right">Cout (EUR)</th>
+                                    <th class="text-right">Marge (EUR)</th>
+                                    <th>Raison</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-articles-anomalies"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <button class="scroll-top" id="scroll-top">Haut</button>
+
+    <script>
+        // Configuration
+        const colors = {
+            primary: '#00d4ff',
+            secondary: '#00ff88',
+            warning: '#ffd93d',
+            danger: '#ff6b6b',
+            purple: '#a78bfa',
+            pink: '#f472b6',
+            orange: '#fb923c',
+            teal: '#2dd4bf'
+        };
+
+        const chartColors = [colors.primary, colors.secondary, colors.warning, colors.danger, colors.purple, colors.pink, colors.orange, colors.teal];
+
+        Chart.defaults.color = '#718096';
+        Chart.defaults.borderColor = '#2d3748';
+
+        // Formatage
+        const fmt = {
+            number: n => new Intl.NumberFormat('fr-FR').format(n),
+            currency: n => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n),
+            percent: n => n.toFixed(1) + '%'
+        };
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const topbarLogout = document.getElementById('topbar-logout');
+        const savedTheme = localStorage.getItem('vanalytics_theme');
+        if (savedTheme === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            themeToggle.textContent = 'Mode sombre';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isLight = document.body.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('vanalytics_theme', 'dark');
+                themeToggle.textContent = 'Mode clair';
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                localStorage.setItem('vanalytics_theme', 'light');
+                themeToggle.textContent = 'Mode sombre';
+            }
+        });
+
+        // Topbar logout (visible si connecté)
+        if (localStorage.getItem('vanady_auth') === 'ok') {
+            topbarLogout.style.display = 'inline-flex';
+        }
+        topbarLogout.addEventListener('click', () => {
+            localStorage.removeItem('vanady_auth');
+            window.location.href = 'login.html';
+        });
+
+        const scrollTopBtn = document.getElementById('scroll-top');
+        const toggleScrollBtn = () => {
+            scrollTopBtn.classList.toggle('show', window.scrollY > 200);
+        };
+        window.addEventListener('scroll', toggleScrollBtn);
+        toggleScrollBtn();
+        scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // Navigation
+        document.querySelectorAll('.nav-tab[data-volet]').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.volet').forEach(v => v.classList.remove('active'));
+                tab.classList.add('active');
+                const target = document.getElementById('volet-' + tab.dataset.volet);
+                if (target) target.classList.add('active');
+            });
+        });
+
+        // Chargement donnees
+        async function loadData() {
+            try {
+                const response = await fetch('dashboard_data.json?ts=' + Date.now());
+                if (!response.ok) throw new Error('Fichier non trouve');
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                console.error(error);
+                document.querySelector('.container').innerHTML = `
+                    <div class="error">
+                        <h3>Erreur de chargement</h3>
+                        <p>Impossible de charger dashboard_data.json</p>
+                        <p style="margin-top:10px;font-size:0.85rem;">${error && error.message ? error.message : ''}</p>
+                        <p style="margin-top:15px;font-size:0.9rem;">Executez d'abord : <code style="background:#1a1f2e;padding:5px 10px;border-radius:5px;">py dashboard_sbo.py</code></p>
+                    </div>
+                `;
+            }
+        }
+
+        // Tri des colonnes
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let currentData = null;
+
+        function sortTable(data, column, direction) {
+            return [...data].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+                if (direction === 'asc') return valA > valB ? 1 : -1;
+                return valA < valB ? 1 : -1;
+            });
+        }
+
+        function renderMensuelTable(mensuel, totaux) {
+            const tbodyMensuel = document.getElementById('tbody-mensuel');
+            tbodyMensuel.innerHTML = mensuel.map(m => `
+                <tr>
+                    <td><strong>${m.periode}</strong></td>
+                    <td class="text-right">${fmt.number(m.nb_commandes)}</td>
+                    <td class="text-right">${fmt.currency(m.ca_eur)}</td>
+                    <td class="text-center"><span class="badge badge-primary">${m.taux_mono}%</span></td>
+                    <td class="text-center"><span class="badge badge-success">${m.taux_multi}%</span></td>
+                    <td class="text-right">${m.moyenne_quotidienne}</td>
+                    <td class="text-center">${m.densite}%</td>
+                    <td class="text-right">${fmt.number(m.nb_references)}</td>
+                    <td>${m.jour_max}</td>
+                    <td>${m.heure_pic_str}</td>
+                    <td class="text-center"><span class="badge ${m.taux_annulation > 5 ? 'badge-danger' : 'badge-warning'}">${m.taux_annulation}%</span></td>
+                </tr>
+            `).join('');
+
+            // Ligne de TOTAL
+            if (totaux) {
+                tbodyMensuel.innerHTML += `
+                    <tr style="background: rgba(0, 212, 255, 0.1); font-weight: bold; border-top: 2px solid var(--primary);">
+                        <td><strong>${totaux.periode}</strong></td>
+                        <td class="text-right">${fmt.number(totaux.nb_commandes)}</td>
+                        <td class="text-right">${fmt.currency(totaux.ca_eur)}</td>
+                        <td class="text-center"><span class="badge badge-primary">${totaux.taux_mono}%</span></td>
+                        <td class="text-center"><span class="badge badge-success">${totaux.taux_multi}%</span></td>
+                        <td class="text-right">${totaux.moyenne_quotidienne}</td>
+                        <td class="text-center">${totaux.densite}%</td>
+                        <td class="text-right">${fmt.number(totaux.nb_references)}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td class="text-center"><span class="badge badge-warning">${totaux.taux_annulation}%</span></td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderEtatsMensuelTable(mensuel) {
+            const tbodyEtats = document.getElementById('tbody-etats-mensuel');
+            if (!tbodyEtats) return;
+
+            const totals = mensuel.reduce((acc, m) => {
+                acc.nb_closed += m.nb_closed || 0;
+                acc.nb_shipped += m.nb_shipped || 0;
+                acc.nb_canceled += m.nb_canceled || 0;
+                acc.nb_rejected += m.nb_rejected || 0;
+                return acc;
+            }, { nb_closed: 0, nb_shipped: 0, nb_canceled: 0, nb_rejected: 0 });
+
+            tbodyEtats.innerHTML = mensuel.map(m => `
+                <tr>
+                    <td><strong>${m.periode}</strong></td>
+                    <td class="text-right">${fmt.number(m.nb_closed || 0)}</td>
+                    <td class="text-right">${fmt.number(m.nb_shipped || 0)}</td>
+                    <td class="text-right">${fmt.number(m.nb_canceled || 0)}</td>
+                    <td class="text-right">${fmt.number(m.nb_rejected || 0)}</td>
+                </tr>
+            `).join('');
+
+            tbodyEtats.innerHTML += `
+                <tr style="background: rgba(0, 212, 255, 0.1); font-weight: bold; border-top: 2px solid var(--primary);">
+                    <td><strong>TOTAL</strong></td>
+                    <td class="text-right">${fmt.number(totals.nb_closed)}</td>
+                    <td class="text-right">${fmt.number(totals.nb_shipped)}</td>
+                    <td class="text-right">${fmt.number(totals.nb_canceled)}</td>
+                    <td class="text-right">${fmt.number(totals.nb_rejected)}</td>
+                </tr>
+            `;
+        }
+
+
+        
+        function renderTopPays(transport) {
+            const list = Array.isArray(transport.top_pays) ? transport.top_pays : [];
+            const tbody = document.getElementById('tbody-pays');
+            if (tbody) {
+                tbody.innerHTML = list.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${p.pays}</strong></td>
+                        <td class="text-right">${fmt.number(p.nb_commandes || 0)}</td>
+                        <td class="text-right">${fmt.currency(p.ca_eur || 0)}</td>
+                        <td class="text-right">${fmt.currency(p.ca_moyen_eur || 0)}</td>
+                        <td class="text-right">${fmt.number(p.poids_kg || 0)} kg</td>
+                        <td class="text-right">${p.pct_ca_transport || 0}%</td>
+                    </tr>
+                `).join('');
+            }
+
+            const chartData = list.slice(0, 10);
+            const labels = chartData.map(p => p.pays);
+            const values = chartData.map(p => p.ca_eur || 0);
+            const canvas = document.getElementById('chart-pays');
+            if (canvas && window.Chart) {
+                if (window._paysChart) window._paysChart.destroy();
+                window._paysChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'CA (EUR)',
+                            data: values,
+                            backgroundColor: chartColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+function renderCpSection(transport) {
+            transport = transport || {};
+            const data = Array.isArray(transport.top_cp_enhanced) ? transport.top_cp_enhanced
+                : (Array.isArray(transport.top_cp) ? transport.top_cp : []);
+            const stats = transport.cp_stats || {};
+            const metricSelect = document.getElementById('cp-metric');
+            const limitSelect = document.getElementById('cp-limit');
+            const countrySelect = document.getElementById('cp-country');
+            const statsEl = document.getElementById('cp-stats');
+            if (!metricSelect || !limitSelect || !countrySelect) return;
+
+            if (!window._cpControlsBound) {
+                const rerender = () => renderCpSection(window._cpTransport || transport);
+                metricSelect.addEventListener('change', rerender);
+                limitSelect.addEventListener('change', rerender);
+                countrySelect.addEventListener('change', rerender);
+                window._cpControlsBound = true;
+            }
+
+            const countries = [...new Set(data.map(d => d.pays).filter(Boolean))].sort();
+            const current = countrySelect.value || 'ALL';
+            countrySelect.innerHTML = '<option value="ALL">Tous pays</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (countries.includes(current)) countrySelect.value = current;
+
+            const metric = metricSelect.value || 'volume';
+            const limit = parseInt(limitSelect.value || '50', 10);
+
+            const metricValue = (d) => {
+                if (metric === 'ca') return d.ca_eur || 0;
+                if (metric === 'poids') return d.poids_kg || 0;
+                return d.nb_commandes || 0;
+            };
+
+            let filtered = data.filter(d => countrySelect.value === 'ALL' || d.pays === countrySelect.value);
+            filtered = filtered.sort((a, b) => metricValue(b) - metricValue(a)).slice(0, limit);
+
+            const tbody = document.getElementById('tbody-cp');
+            if (tbody) {
+                tbody.innerHTML = filtered.map((cp, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${cp.cp}</strong></td>
+                        <td>${cp.ville || '-'}</td>
+                        <td>${cp.pays || '-'}</td>
+                        <td class="text-right">${fmt.number(cp.nb_commandes || 0)}</td>
+                        <td class="text-right">${fmt.currency(cp.ca_eur || 0)}</td>
+                        <td class="text-right">${fmt.currency(cp.ca_moyen_eur || 0)}</td>
+                        <td class="text-right">${fmt.number(cp.poids_kg || 0)} kg</td>
+                        <td class="text-right">${cp.pct_ca_transport || 0}%</td>
+                        <td class="text-center">${cp.is_heavy ? '<span class="badge badge-warning">Elev?</span>' : '-'}</td>
+                    </tr>
+                `).join('');
+            }
+
+            if (statsEl) {
+                const ca = fmt.currency(stats.total_ca_eur || 0);
+                const poids = fmt.number(stats.total_poids_kg || 0) + ' kg';
+                const seuil = fmt.number(stats.poids_seuil_kg || 0) + ' kg';
+                statsEl.textContent = `Total CA transport: ${ca} | Total poids: ${poids} | Seuil poids elev?: ${seuil}`;
+            }
+
+            const chartData = filtered.slice(0, 15);
+            const labels = chartData.map(d => `${d.cp} - ${d.ville || ''}`.trim());
+            const values = chartData.map(d => metricValue(d));
+
+            const canvas = document.getElementById('chart-cp');
+            if (canvas && window.Chart) {
+                if (window._cpChart) window._cpChart.destroy();
+                window._cpChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: metric === 'ca' ? 'CA (EUR)' : (metric === 'poids' ? 'Poids (kg)' : 'Commandes'),
+                            data: values,
+                            backgroundColor: chartColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+function renderArticlesSection(articles) {
+            if (!articles) return;
+
+            const kpiEl = document.getElementById('kpis-articles');
+            const totals = articles.totals || {};
+            if (kpiEl) {
+                kpiEl.innerHTML = `
+                    <div class="kpi-card green"><div class="value">${fmt.currency(totals.ca_b2c_eur || 0)}</div><div class="label">CA B2C</div></div>
+                    <div class="kpi-card"><div class="value">${fmt.currency(totals.cout_eur || 0)}</div><div class="label">Cout Achat</div></div>
+                    <div class="kpi-card green"><div class="value">${fmt.currency(totals.marge_eur || 0)}</div><div class="label">Marge</div></div>
+                    <div class="kpi-card warning"><div class="value">${(totals.marge_pct || 0).toFixed(2)}%</div><div class="label">Marge %</div></div>
+                    <div class="kpi-card"><div class="value">${fmt.number(totals.nb_refs_vendues || 0)}</div><div class="label">Articles Vendus</div></div>
+                    <div class="kpi-card danger"><div class="value">${fmt.number(totals.nb_refs_sans_prix || 0)}</div><div class="label">Sans Prix</div></div>
+                    <div class="kpi-card danger"><div class="value">${fmt.number(totals.nb_refs_sans_cout || 0)}</div><div class="label">Sans Cout</div></div>
+                `;
+            }
+
+            const ca = articles.top_ca || [];
+            const marge = articles.top_marge || [];
+            const anomalies = articles.anomalies || [];
+
+            const tbodyCa = document.getElementById('tbody-pareto-ca');
+            if (tbodyCa) {
+                tbodyCa.innerHTML = ca.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${p.productRef}</strong></td>
+                        <td class="text-right">${fmt.currency(p.value_eur)}</td>
+                        <td class="text-right">${p.pct}%</td>
+                        <td class="text-right">${p.cum_pct}%</td>
+                        <td class="text-right">${fmt.number(p.qty)}</td>
+                        <td class="text-right">${fmt.number(p.nb_commandes)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const tbodyMarge = document.getElementById('tbody-pareto-marge');
+            if (tbodyMarge) {
+                tbodyMarge.innerHTML = marge.map((p, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${p.productRef}</strong></td>
+                        <td class="text-right">${fmt.currency(p.value_eur)}</td>
+                        <td class="text-right">${p.pct}%</td>
+                        <td class="text-right">${p.cum_pct}%</td>
+                        <td class="text-right">${fmt.number(p.qty)}</td>
+                        <td class="text-right">${fmt.number(p.nb_commandes)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const tbodyAnom = document.getElementById('tbody-articles-anomalies');
+            if (tbodyAnom) {
+                tbodyAnom.innerHTML = anomalies.map((a, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${a.productRef}</strong></td>
+                        <td class="text-right">${fmt.number(a.qty)}</td>
+                        <td class="text-right">${fmt.currency(a.ca_b2c_eur)}</td>
+                        <td class="text-right">${fmt.currency(a.cout_eur)}</td>
+                        <td class="text-right">${fmt.currency(a.marge_eur)}</td>
+                        <td>${a.reason}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+
+
+
+        function renderDashboard(data) {
+            const { kpis, mensuel, totaux, transport, repartitions, articles } = data;
+            currentData = data;
+            const mensuelSafe = Array.isArray(mensuel) ? mensuel : [];
+            const transportSafe = transport || {};
+            transportSafe.tranches_poids = Array.isArray(transportSafe.tranches_poids) ? transportSafe.tranches_poids : [];
+            transportSafe.expeditions_mensuelles = Array.isArray(transportSafe.expeditions_mensuelles) ? transportSafe.expeditions_mensuelles : [];
+            const repartitionsSafe = repartitions || {};
+            repartitionsSafe.horaire = Array.isArray(repartitionsSafe.horaire) ? repartitionsSafe.horaire : [];
+            repartitionsSafe.jours = Array.isArray(repartitionsSafe.jours) ? repartitionsSafe.jours : [];
+            repartitionsSafe.etats = Array.isArray(repartitionsSafe.etats) ? repartitionsSafe.etats : [];
+
+            // Periode
+            document.getElementById('periode').textContent = `Periode : ${kpis.periode_debut} - ${kpis.periode_fin}`;
+
+            // KPIs Commandes
+            document.getElementById('kpis-commandes').innerHTML = `
+                <div class="kpi-card green"><div class="value">${fmt.number(kpis.total_commandes)}</div><div class="label">Commandes</div></div>
+                <div class="kpi-card green"><div class="value">${fmt.currency(kpis.ca_total_eur)}</div><div class="label">CA Total</div></div>
+                <div class="kpi-card"><div class="value">${fmt.currency(kpis.panier_moyen_eur)}</div><div class="label">Panier Moyen</div></div>
+                <div class="kpi-card"><div class="value">${kpis.taux_mono_global}%</div><div class="label">Mono-produit</div></div>
+                <div class="kpi-card"><div class="value">${kpis.taux_multi_global}%</div><div class="label">Multi-produits</div></div>
+                <div class="kpi-card"><div class="value">${fmt.number(kpis.nb_references)}</div><div class="label">References</div></div>
+                <div class="kpi-card warning"><div class="value">${kpis.taux_annulation_global}%</div><div class="label">Taux Annulation</div></div>
+            `;
+
+            // KPIs Transport
+            document.getElementById('kpis-transport').innerHTML = `
+                <div class="kpi-card green"><div class="value">${fmt.number(kpis.nb_expeditions_total)}</div><div class="label">Expeditions</div></div>
+                <div class="kpi-card"><div class="value">${kpis.poids_moyen_kg} kg</div><div class="label">Poids Moyen</div></div>
+                <div class="kpi-card"><div class="value">${fmt.number(kpis.quantite_totale)}</div><div class="label">Articles Expedies</div></div>
+            `;
+
+            // Table mensuelle avec totaux
+            renderMensuelTable(mensuelSafe, totaux);
+            renderEtatsMensuelTable(mensuelSafe);
+            renderArticlesSection(articles);
+                        renderTopPays(transportSafe);
+            window._cpTransport = transportSafe;
+            renderCpSection(transportSafe);
+
+            // Tri des colonnes au clic sur les headers
+            const columns = ['periode', 'nb_commandes', 'ca_eur', 'taux_mono', 'taux_multi', 'moyenne_quotidienne', 'densite', 'nb_references', 'jour_max', 'heure_pic_str', 'taux_annulation'];
+            document.querySelectorAll('#table-mensuel th').forEach((th, index) => {
+                th.addEventListener('click', () => {
+                    const col = columns[index];
+                    if (sortColumn === col) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortColumn = col;
+                        sortDirection = 'asc';
+                    }
+                    const sorted = sortTable(mensuelSafe, col, sortDirection);
+                    renderMensuelTable(sorted, totaux);
+                    // Indicateur visuel
+                    document.querySelectorAll('#table-mensuel th').forEach(t => t.style.color = '');
+                    th.style.color = sortDirection === 'asc' ? '#00ff88' : '#ff6b6b';
+                });
+            });
+
+            // Chart Evolution
+            new Chart(document.getElementById('chart-evolution'), {
+                type: 'line',
+                data: {
+                    labels: mensuelSafe.map(m => m.mois_nom),
+                    datasets: [{
+                        label: 'Commandes',
+                        data: mensuelSafe.map(m => m.nb_commandes),
+                        borderColor: colors.primary,
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'CA (EUR)',
+                        data: mensuelSafe.map(m => m.ca_eur),
+                        borderColor: colors.secondary,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    scales: {
+                        y: { position: 'left', title: { display: true, text: 'Commandes' } },
+                        y1: { position: 'right', title: { display: true, text: 'CA (EUR)' }, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+
+            // Chart Mono/Multi par mois
+            new Chart(document.getElementById('chart-mono-multi'), {
+                type: 'bar',
+                data: {
+                    labels: mensuelSafe.map(m => m.mois_nom),
+                    datasets: [{
+                        label: 'Mono',
+                        data: mensuelSafe.map(m => m.nb_mono),
+                        backgroundColor: colors.primary,
+                        borderRadius: 4
+                    }, {
+                        label: 'Multi',
+                        data: mensuelSafe.map(m => m.nb_multi),
+                        backgroundColor: colors.secondary,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true } }
+                }
+            });
+
+            // Chart Horaire
+            new Chart(document.getElementById('chart-horaire'), {
+                type: 'bar',
+                data: {
+                    labels: repartitionsSafe.horaire.map(h => h.heure + 'h'),
+                    datasets: [{
+                        label: 'Commandes',
+                        data: repartitionsSafe.horaire.map(h => h.count),
+                        backgroundColor: repartitions.horaire.map(h => {
+                            const max = Math.max(...repartitionsSafe.horaire.map(x => x.count));
+                            return h.count === max ? colors.secondary : colors.primary;
+                        }),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Chart Jours
+            new Chart(document.getElementById('chart-jours'), {
+                type: 'bar',
+                data: {
+                    labels: repartitionsSafe.jours.map(j => j.jour),
+                    datasets: [{
+                        label: 'Commandes',
+                        data: repartitionsSafe.jours.map(j => j.count),
+                        backgroundColor: chartColors,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Etats bars
+            const totalCmd = kpis.total_commandes;
+            document.getElementById('etats-bars').innerHTML = repartitionsSafe.etats.map(e => `
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>${e.etat}</span>
+                        <span>${fmt.number(e.count)} (${e.pct}%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="fill ${e.etat === 'closed' ? 'secondary' : 'primary'}" style="width: ${e.pct}%"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            // === TRANSPORT ===
+
+            // Table expeditions
+            const tbodyExp = document.getElementById('tbody-expeditions');
+            tbodyExp.innerHTML = transportSafe.expeditions_mensuelles.map(e => `
+                <tr>
+                    <td><strong>${e.mois_nom} ${e.annee}</strong></td>
+                    <td class="text-right">${fmt.number(e.nb_expeditions)}</td>
+                    <td class="text-right">${fmt.currency(e.ca_eur)}</td>
+                    <td class="text-right">${e.poids_total_kg} kg</td>
+                </tr>
+            `).join('');
+
+            // Chart Poids
+            new Chart(document.getElementById('chart-poids'), {
+                type: 'doughnut',
+                data: {
+                    labels: transportSafe.tranches_poids.map(t => `${t.tranche} (${t.count})`),
+                    datasets: [{
+                        data: transportSafe.tranches_poids.map(t => t.count),
+                        backgroundColor: chartColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+
+            // Chart Expeditions evolution
+            new Chart(document.getElementById('chart-expeditions'), {
+                type: 'bar',
+                data: {
+                    labels: transportSafe.expeditions_mensuelles.map(e => e.mois_nom),
+                    datasets: [{
+                        label: 'Expeditions',
+                        data: transportSafe.expeditions_mensuelles.map(e => e.nb_expeditions),
+                        backgroundColor: colors.secondary,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Table CP (legacy fallback - kept safe)
+            const tbodyCp = document.getElementById('tbody-cp');
+            if (tbodyCp) {
+                const legacyCp = Array.isArray(transportSafe.top_cp) ? transportSafe.top_cp : [];
+                if (legacyCp.length && !document.getElementById('cp-metric')) {
+                    tbodyCp.innerHTML = legacyCp.map((cp, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${cp.cp}</strong></td>
+                            <td>${cp.ville}</td>
+                            <td>${cp.pays}</td>
+                            <td class="text-right">${fmt.number(cp.nb_commandes)}</td>
+                            <td class="text-right">${fmt.currency(cp.ca_eur)}</td>
+                            <td class="text-right">${cp.poids_kg} kg</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+
+        // Demarrage
+        loadData();
+    </script>
+</body>
+</html>

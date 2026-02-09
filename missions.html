@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Etudes et livrables | Vanalytics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0f1419;
+      --bg-card: #1a1f2e;
+      --bg-card-hover: #252b3d;
+      --border: #2d3748;
+      --text: #e2e8f0;
+      --text-muted: #718096;
+      --primary: #00d4ff;
+      --secondary: #00ff88;
+      --warning: #ffd93d;
+      --danger: #ff6b6b;
+      --purple: #a78bfa;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body[data-theme="light"] {
+      --bg-dark: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #edf2f7;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --text-muted: #4a5568;
+      --primary: #0ea5e9;
+      --secondary: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .top-link {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .top-link:hover {
+      border-color: var(--primary);
+      background: var(--bg-card-hover);
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    header {
+      padding: 28px 6vw 24px;
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      max-width: 880px;
+      line-height: 1.6;
+    }
+
+    main {
+      padding: 24px 6vw 64px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .section h3 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section h3::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: linear-gradient(180deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    .placeholder {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--text-muted);
+      background: rgba(0, 212, 255, 0.04);
+    }
+
+    .link-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .link-card {
+      display: grid;
+      gap: 6px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .link-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      background: var(--bg-card-hover);
+    }
+
+    .link-title {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .link-meta {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .scroll-top {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 50;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .scroll-top.show { display: inline-flex; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand">Vanalytics</div>
+      <div class="top-links">
+        <a class="top-link" href="home.html">Rapport mission Vanady</a>
+        <a class="top-link" href="dashboard.html">Dashboard Vanady</a>
+        <a class="top-link" href="missions.html">Etudes et livrables</a>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="theme-toggle" id="topbar-logout" style="display: none;">Se déconnecter</button>
+      <button class="theme-toggle" id="theme-toggle">Mode clair</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="title">Etudes et livrables</div>
+    <p class="subtitle">Espace réservé aux études et livrables réalisés en parallèle. Le contenu sera ajouté prochainement.</p>
+  </header>
+
+  <main>
+    
+
+    <section class="section">
+      
+      <div class="link-list">
+        <a class="link-card" href="livrables/rapport-oms-wms-tms.html">
+          <div class="link-title">Rapport OMS / WMS / TMS</div>
+          <div class="link-meta">Période analysée : 12 sept. 2025 → 12 nov. 2025 · 152 commandes / 163 expéditions</div>
+        </a>
+        <a class="link-card" href="livrables/rapport-strategique-optimisation-logistique.html">
+          <div class="link-title">Rapport stratégique – Optimisation logistique</div>
+          <div class="link-meta">17 nov. 2025 · 3 axes stratégiques · 15 recommandations</div>
+        </a>
+        <a class="link-card" href="livrables/roadmap-strategique.html">
+          <div class="link-title">Roadmap stratégique</div>
+          <div class="link-meta">Plan d’action immédiat · Sécurisation & quick wins</div>
+        </a>
+        <a class="link-card" href="plan-action-2026.html">
+          <div class="link-title">Plan d’actions recommandé</div>
+          <div class="link-meta">Court / moyen / long terme · Gouvernance, transport, exécution</div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <button class="scroll-top" id="scroll-top">Haut</button>
+
+  <script>
+    if (localStorage.getItem('vanady_auth') !== 'ok') {
+      window.location.href = 'login.html';
+    }
+
+    const themeToggle = document.getElementById('theme-toggle');
+    const topbarLogout = document.getElementById('topbar-logout');
+    const savedTheme = localStorage.getItem('vanalytics_theme');
+    if (savedTheme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      themeToggle.textContent = 'Mode sombre';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('vanalytics_theme', 'dark');
+        themeToggle.textContent = 'Mode clair';
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+        localStorage.setItem('vanalytics_theme', 'light');
+        themeToggle.textContent = 'Mode sombre';
+      }
+    });
+
+    if (localStorage.getItem('vanady_auth') === 'ok') {
+      topbarLogout.style.display = 'inline-flex';
+    }
+    topbarLogout.addEventListener('click', () => {
+      localStorage.removeItem('vanady_auth');
+      window.location.href = 'login.html';
+    });
+
+    const scrollTopBtn = document.getElementById('scroll-top');
+    const toggleScrollBtn = () => {
+      scrollTopBtn.classList.toggle('show', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', toggleScrollBtn);
+    toggleScrollBtn();
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  </script>
+</body>
+</html>

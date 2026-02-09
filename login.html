@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accès sécurisé | Vanalytics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0f1419;
+      --bg-card: #1a1f2e;
+      --bg-card-hover: #252b3d;
+      --border: #2d3748;
+      --text: #e2e8f0;
+      --text-muted: #718096;
+      --primary: #00d4ff;
+      --secondary: #00ff88;
+      --warning: #ffd93d;
+      --danger: #ff6b6b;
+      --purple: #a78bfa;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(1200px 600px at 10% 10%, #17202a 0%, #0f1419 55%, #0b0f14 100%);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+
+    .card {
+      width: min(980px, 100%);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    .visual {
+      padding: 36px;
+      background: linear-gradient(135deg, #1a1f2e 0%, #131922 60%, #0f1419 100%);
+      display: grid;
+      gap: 18px;
+      align-content: center;
+    }
+
+    .brand {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0, 212, 255, 0.12);
+      font-size: 0.8rem;
+      color: var(--primary);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .form-area {
+      padding: 36px;
+      display: grid;
+      gap: 18px;
+      align-content: center;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .input-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    input {
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f1419;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(0, 212, 255, 0.35);
+      border-color: var(--primary);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      background: var(--primary);
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    button:hover { background: #2be2ff; transform: translateY(-1px); }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .error {
+      background: rgba(255, 107, 107, 0.12);
+      color: var(--danger);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      display: none;
+    }
+
+    .scroll-top {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 50;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .scroll-top.show { display: inline-flex; }
+
+    @media (max-width: 860px) {
+      .card { grid-template-columns: 1fr; }
+      .visual { order: 2; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section class="visual">
+      <div class="brand">Vanalytics – Rapport de mission</div>
+      <p class="subtitle">Accès sécurisé au rapport de synthèse Supply Chain & Expéditions internationales. Version client.</p>
+      <div class="tags">
+        <span class="tag">Audit & pilotage</span>
+        <span class="tag">Supply Chain</span>
+        <span class="tag">Expéditions</span>
+      </div>
+    </section>
+
+    <section class="form-area">
+      <h1>Connexion</h1>
+      <p class="hint">Entrez le mot de passe communiqué pour accéder au rapport.</p>
+      <div class="error" id="error">Mot de passe incorrect. Réessayez.</div>
+      <form id="login-form" class="input-wrap">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+        <div class="actions">
+          <button type="submit">Accéder</button>
+          <button type="button" class="ghost" id="toggle">Afficher</button>
+        </div>
+      </form>
+      <p class="hint">Astuce : vous resterez connecté sur cet appareil.</p>
+    </section>
+  </main>
+
+  <button class="scroll-top" id="scroll-top">Haut</button>
+
+  <script>
+    const PASSWORD = 'Van2026';
+    const form = document.getElementById('login-form');
+    const error = document.getElementById('error');
+    const toggle = document.getElementById('toggle');
+    const pwd = document.getElementById('password');
+
+    if (localStorage.getItem('vanady_auth') === 'ok') {
+      window.location.href = 'home.html';
+    }
+
+    toggle.addEventListener('click', () => {
+      const show = pwd.type === 'password';
+      pwd.type = show ? 'text' : 'password';
+      toggle.textContent = show ? 'Masquer' : 'Afficher';
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (pwd.value === PASSWORD) {
+        localStorage.setItem('vanady_auth', 'ok');
+        window.location.href = 'home.html';
+        return;
+      }
+      error.style.display = 'block';
+      pwd.focus();
+      pwd.select();
+    });
+
+    const scrollTopBtn = document.getElementById('scroll-top');
+    const toggleScrollBtn = () => {
+      scrollTopBtn.classList.toggle('show', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', toggleScrollBtn);
+    toggleScrollBtn();
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  </script>
+</body>
+</html>

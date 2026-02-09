@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plan d’actions recommandé</title>
+  <style>
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-dark: #0f1419;
+      --bg-card: #1a1f2e;
+      --bg-card-hover: #252b3d;
+      --border: #2d3748;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --primary: #00d4ff;
+      --secondary: #00ff88;
+      --warning: #ffd93d;
+      --purple: #a78bfa;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+    body[data-theme="light"] {
+      --bg-dark: #f7fafc; --bg-card: #ffffff; --bg-card-hover: #edf2f7; --border: #e2e8f0;
+      --text: #1a202c; --text-muted: #4a5568; --primary: #0ea5e9; --secondary: #10b981; --warning: #f59e0b; --purple: #8b5cf6;
+    }
+    .topbar { background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .brand { font-weight: 700; font-size: 1.05rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .top-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .top-link { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); text-decoration: none; font-size: 0.85rem; transition: all 0.2s ease; }
+    .top-link:hover { border-color: var(--primary); background: var(--bg-card-hover); }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+    .theme-toggle { border: 1px solid var(--border); background: var(--bg-card); color: var(--text); padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: 0.85rem; }
+    header { padding: 28px 6vw 18px; background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%); border-bottom: 1px solid var(--border); }
+    .title { font-size: clamp(2rem, 3.4vw, 2.8rem); font-weight: 700; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .subtitle { color: var(--text-muted); margin-top: 6px; }
+    main { padding: 24px 6vw 64px; display: grid; gap: 18px; }
+    .horizon { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: grid; gap: 14px; position: relative; box-shadow: 0 18px 36px rgba(0,0,0,0.2); }
+    .horizon::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--primary), var(--secondary)); border-radius: 16px 0 0 16px; }
+    .horizon-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .horizon-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+    .horizon-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card-hover); color: var(--text-muted); font-size: 0.8rem; }
+    .block { background: var(--bg-card-hover); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: grid; gap: 8px; }
+    .block-title { font-weight: 700; color: var(--text); }
+    .list { display: grid; gap: 8px; line-height: 1.6; }
+    .bullet { padding-left: 6px; }
+    .sub-bullet { padding-left: 18px; color: var(--text-muted); }
+    @media (max-width: 720px) { .horizon { padding: 16px; } }
+    .scroll-top { position: fixed; right: 22px; bottom: 22px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); padding: 10px 14px; border-radius: 999px; cursor: pointer; font-size: 0.85rem; display: none; z-index: 50; box-shadow: 0 12px 30px rgba(0,0,0,0.35); }
+    .scroll-top.show { display: inline-flex; }
+
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand">Vanalytics</div>
+      <div class="top-links">
+        <a class="top-link" href="home.html">Rapport mission Vanady</a>
+        <a class="top-link" href="dashboard.html">Dashboard Vanady</a>
+        <a class="top-link" href="missions.html">Etudes et livrables</a>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="theme-toggle" id="topbar-logout" style="display:none;">Se d?connecter</button>
+      <button class="theme-toggle" id="theme-toggle">Mode clair</button>
+    </div>
+  </div>
+  <header>
+    <div class="title">Plan d’actions recommandé</div>
+    <div class="subtitle">Plan d?action Supply Chain par horizons temporels.</div>
+  </header>
+  <main>
+    <section class="horizon">
+      <div class="horizon-head">
+        <div class="horizon-title">Moyen terme (3 – 6 mois)</div>
+        <div class="horizon-chip">Moyen terme (3 – 6 mois)</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Objectif : structurer durablement les opérations et homogénéiser les pratiques</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">Structuration des processus &amp; des équipes</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Élaboration d’un manuel de procédures opérationnelles unique</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Déclinaison du manuel en fiches de poste claires pour l’ensemble des équipes opérationnelles (Maroc &amp; interfaces France).</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Clarification des rôles, responsabilités et niveaux de validation pour limiter les zones grises.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">Pilotage des flux Maroc → France</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Formalisation du processus de réassort :</div>
+        <div class="list">
+          <div class="sub-bullet">o	Règles de déclenchement,</div>
+          <div class="sub-bullet">o	Contrôles quantitatifs et qualitatifs,</div>
+          <div class="sub-bullet">o	Points de validation,</div>
+          <div class="sub-bullet">o	Stock de sécurité Vanady réservé pour couvrir les futur anomalie entre CMS et OMS.</div>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Harmonisation des pratiques entre les deux dépôts Maroc.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Réduction de la dépendance aux actions correctives post-expédition.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">Transport &amp; arbitrages coûts / service</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Exploitation des données issues de la pesée réelle pour :</div>
+        <div class="list">
+          <div class="sub-bullet">o	fiabiliser les déclarations transport,</div>
+          <div class="sub-bullet">o	objectiver les discussions avec Colissimo,</div>
+          <div class="sub-bullet">o	ajuster les règles d’expédition selon les typologies de commandes.</div>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Mise en place d’arbitrages clairs entre coût, délai et expérience client.</div>
+        <div class="list">
+        </div>
+      </div>
+    </section>
+    <section class="horizon">
+      <div class="horizon-head">
+        <div class="horizon-title">Long terme (6 – 12 mois)</div>
+        <div class="horizon-chip">Long terme (6 – 12 mois)</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Objectif : installer un pilotage pérenne et une performance maîtrisée</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">Pilotage de la performance Supply Chain</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Déploiement d’un pilotage continu des expéditions internationales depuis le siège Maroc.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Suivi régulier des indicateurs clés liés :</div>
+        <div class="list">
+          <div class="sub-bullet">o	aux écarts de poids,</div>
+          <div class="sub-bullet">o	aux sur-facturations,</div>
+          <div class="sub-bullet">o	à la fiabilité des expéditions.</div>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Mise en place de rituels de revue orientés décisions et non traitement d’urgences.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">Automatisation &amp; fiabilisation</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Automatisation progressive des contrôles poids / facturation.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Réduction structurelle des écarts grâce à des règles de gestion robustes.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Passage d’une logique corrective à une logique préventive.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">Optimisation globale du modèle logistique international</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Réévaluation du schéma logistique Maroc – France – clients internationaux.</div>
+        <div class="list">
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Identification des scénarios d’optimisation à moyen et long terme :</div>
+        <div class="list">
+          <div class="sub-bullet">o	organisation des stocks,</div>
+          <div class="sub-bullet">o	modes de transport,</div>
+          <div class="sub-bullet">o	partenaires.</div>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title">•	Alignement durable entre stratégie commerciale, contraintes opérationnelles et coûts logistiques.</div>
+        <div class="list">
+        </div>
+      </div>
+    </section>
+  </main>
+  <button class="scroll-top" id="scroll-top">Haut</button>
+  <script>
+    if (localStorage.getItem("vanady_auth") !== "ok") { window.location.href = "login.html"; }
+    const themeToggle = document.getElementById("theme-toggle");
+    const topbarLogout = document.getElementById("topbar-logout");
+    const savedTheme = localStorage.getItem("vanalytics_theme");
+    if (savedTheme === "light") { document.body.setAttribute("data-theme", "light"); themeToggle.textContent = "Mode sombre"; }
+    themeToggle.addEventListener("click", () => {
+      const isLight = document.body.getAttribute("data-theme") === "light";
+      if (isLight) { document.body.removeAttribute("data-theme"); localStorage.setItem("vanalytics_theme", "dark"); themeToggle.textContent = "Mode clair"; }
+      else { document.body.setAttribute("data-theme", "light"); localStorage.setItem("vanalytics_theme", "light"); themeToggle.textContent = "Mode sombre"; }
+    });
+    if (localStorage.getItem("vanady_auth") === "ok") { topbarLogout.style.display = "inline-flex"; }
+    topbarLogout.addEventListener("click", () => { localStorage.removeItem("vanady_auth"); window.location.href = "login.html"; });
+    const scrollTopBtn = document.getElementById("scroll-top");
+    const toggleScrollBtn = () => { scrollTopBtn.classList.toggle("show", window.scrollY > 200); };
+    window.addEventListener("scroll", toggleScrollBtn); toggleScrollBtn();
+    scrollTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  </script>
+</body>
+</html>
